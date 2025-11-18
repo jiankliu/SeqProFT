@@ -1,0 +1,51 @@
+task: determined
+goal: token-classification
+
+dataset: 
+  dataname: SSP
+  csv_root: data/SS/splits/SSP_{}.csv
+  test_set: test
+  num_classes: 3
+
+project_name: EsmMHAGraphHead-SSP-35M
+
+esm_config:
+  model_name: facebook/esm2_t12_35M_UR50D
+  model_size: 35M
+  in_features: 480
+  hidden_features: 480
+  output_attentions: True
+  contact_compression: mean_head
+
+head_config:
+  head_name: EsmMHAGraphHead
+  attention_features: 128
+  attention_heads: 4
+  dropout_rate: 0.1
+  use_pooling: False
+
+fp16: True
+quantized: False
+peft: True
+
+sweep_config:
+  method: random
+  parameters: 
+    lr:
+      value: 0.0001
+    lr_scheduler_type:
+      value: cosine
+    num_train_epochs:
+      value: 20
+  metric:
+    goal: "maximize"
+    name: "eval/accuracy"
+
+training_setting:
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size : 1
+  gradient_accumulation_steps: 16
+  gradient_checkpointing: False
+  criterion: ce
+
+metric_for_best_model: accuracy

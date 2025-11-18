@@ -1,0 +1,49 @@
+task: determined
+goal: classification
+
+dataset: 
+  dataname: EC
+  csv_root: data/EC/splits/EC_{}.csv
+  num_classes: 538
+
+project_name: EsmMHAHead-EC-650M-nofinetune
+
+esm_config:
+  model_name: facebook/esm2_t33_650M_UR50D
+  model_size: 650M
+  in_features: 1280
+  hidden_features: 1024
+  output_attentions: True
+  contact_compression: mean_head
+
+head_config:
+  head_name: EsmMHAHead
+  attention_features: 128
+  attention_heads: 4
+  dropout_rate: 0.1
+
+fp16: True
+quantized: False
+peft: False
+
+sweep_config:
+  method: random
+  parameters: 
+    lr:
+      value: 0.0001
+    lr_scheduler_type:
+      value: cosine
+    num_train_epochs:
+      value: 20
+  metric:
+    goal: "maximize"
+    name: "eval/f1_max"
+
+training_setting:
+  per_device_train_batch_size: 16
+  per_device_eval_batch_size : 8
+  gradient_accumulation_steps: 1
+  gradient_checkpointing: False
+  criterion: 'bce'
+  
+metric_for_best_model: f1_max

@@ -1,0 +1,51 @@
+task: determined
+goal: regression
+
+dataset: 
+  dataname: FLIP-HumanCell
+  csv_root: data/HumanCell/splits/human_cell_{}.csv
+  num_classes: 1
+
+project_name: AblationLoraR2-EsmMHAGraphHead-FLIP-HumanCell-35M
+
+esm_config:
+  model_name: facebook/esm2_t12_35M_UR50D
+  model_size: 35M
+  in_features: 480
+  hidden_features: 480
+  output_attentions: True
+  contact_compression: mean_head
+
+head_config:
+  head_name: EsmMHAGraphHead
+  attention_features: 128
+  attention_heads: 4
+  dropout_rate: 0.1
+
+fp16: True
+quantized: False
+peft: True
+
+sweep_config:
+  method: random
+  parameters: 
+    lr:
+      value: 0.0005
+    lr_scheduler_type:
+      value: cosine
+    num_train_epochs:
+      value: 10
+  metric:
+    goal: "maximize"
+    name: "eval/spearman"
+
+training_setting:
+  per_device_train_batch_size: 4
+  per_device_eval_batch_size : 8
+  gradient_accumulation_steps: 4
+  gradient_checkpointing: False
+  
+metric_for_best_model: spearman
+lora_rank: 2
+lora_module: [query, key, value, dense]
+lora_bias: 'all'
