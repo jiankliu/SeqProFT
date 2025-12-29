@@ -1,5 +1,5 @@
 # SeqProFT
-This is the source code of "SeqProFT: Sequence-only Protein Property Prediction with LoRA Finetuning".
+This is the source code of "SeqProFT: Sequence-only Protein Property Prediction with LoRA Finetuning" (https://doi.org/10.1109/TAI.2025.3636109).
 
 ## Environment
 ```sh
